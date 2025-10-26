@@ -127,4 +127,75 @@
       timer.textContent = "02:00:00";
 
       const startBtn = document.createElement("button");
-      star
+      startBtn.className = "btn";
+      startBtn.textContent = "Start";
+
+      const resetBtn = document.createElement("button");
+      resetBtn.className = "btn";
+      resetBtn.textContent = "Reset";
+
+      let interval;
+
+      function updateTimer() {
+        const hours = Math.floor(boss.timeLeft / 3600);
+        const minutes = Math.floor((boss.timeLeft % 3600) / 60);
+        const seconds = boss.timeLeft % 60;
+        timer.textContent = `${hours.toString().padStart(2, "0")}:${minutes
+          .toString()
+          .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+
+        if (boss.timeLeft <= 0) {
+          clearInterval(interval);
+          timer.textContent = "⚡ RESPAWNED ⚡";
+          playAlarm();
+          startFlashing(card);
+        } else {
+          boss.timeLeft--;
+        }
+      }
+
+      startBtn.addEventListener("click", () => {
+        clearInterval(interval);
+        updateTimer();
+        interval = setInterval(updateTimer, 1000);
+      });
+
+      resetBtn.addEventListener("click", () => {
+        clearInterval(interval);
+        boss.timeLeft = 2 * 60 * 60;
+        timer.textContent = "02:00:00";
+        alarmSound.pause();
+        alarmSound.currentTime = 0;
+        card.classList.remove("flash");
+      });
+
+      card.appendChild(name);
+      card.appendChild(timer);
+      card.appendChild(startBtn);
+      card.appendChild(resetBtn);
+
+      bossContainer.appendChild(card);
+    }
+
+    function playAlarm() {
+      alarmSound.play();
+    }
+
+    function startFlashing(card) {
+      card.classList.add("flash");
+      setTimeout(() => card.classList.remove("flash"), 5000);
+    }
+
+    // Make all boss cards
+    bosses.forEach(createBossCard);
+
+    // Theme toggle
+    themeToggle.addEventListener("click", () => {
+      document.body.classList.toggle("light");
+      themeToggle.textContent = document.body.classList.contains("light")
+        ? "🌙 Dark Mode"
+        : "☀️ Light Mode";
+    });
+  </script>
+</body>
+</html>
