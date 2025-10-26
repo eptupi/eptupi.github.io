@@ -3,12 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Epic Timer ⏱️</title>
+  <title>Countdown Timer ⏳</title>
   <style>
+    :root {
+      --bg: linear-gradient(135deg, #0f172a, #1e3a8a);
+      --text: #f1f5f9;
+      --btn-bg: #3b82f6;
+      --btn-hover: #2563eb;
+    }
+
+    body.light {
+      --bg: linear-gradient(135deg, #f8fafc, #e2e8f0);
+      --text: #0f172a;
+      --btn-bg: #2563eb;
+      --btn-hover: #1e40af;
+    }
+
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #1e293b, #0f172a);
-      color: #fff;
+      background: var(--bg);
+      color: var(--text);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -16,84 +30,152 @@
       height: 100vh;
       margin: 0;
       text-align: center;
+      transition: background 0.5s, color 0.5s;
     }
+
     h1 {
       font-size: 2.5rem;
       margin-bottom: 2rem;
     }
-    #timer {
-      font-size: 4rem;
-      letter-spacing: 2px;
+
+    #countdown {
+      font-size: 3.5rem;
       margin-bottom: 2rem;
+      letter-spacing: 2px;
+      transition: 0.3s;
     }
-    .btn {
-      background: #3b82f6;
+
+    input {
+      padding: 0.5rem;
+      border-radius: 8px;
       border: none;
-      color: #fff;
+      font-size: 1rem;
+      text-align: center;
+      width: 160px;
+      margin-right: 0.5rem;
+    }
+
+    .btn {
+      background: var(--btn-bg);
+      border: none;
+      color: white;
       padding: 0.75rem 1.5rem;
       font-size: 1rem;
       border-radius: 10px;
       cursor: pointer;
       margin: 0.3rem;
-      transition: all 0.3s ease;
+      transition: 0.3s ease;
     }
+
     .btn:hover {
-      background: #2563eb;
+      background: var(--btn-hover);
       transform: scale(1.05);
+    }
+
+    #themeToggle {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: var(--btn-bg);
+      border: none;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .flash {
+      animation: flash 0.3s alternate infinite;
+    }
+
+    @keyframes flash {
+      from { background-color: #ff0000; }
+      to { background-color: #000; }
     }
   </style>
 </head>
 <body>
-  <h1>🔥 Savage Timer 🔥</h1>
-  <div id="timer">00:00:00</div>
+  <button id="themeToggle">☀️ Light Mode</button>
+  <h1>🔥 Countdown Timer 🔥</h1>
+
   <div>
+    <input type="number" id="minutesInput" placeholder="Minutes" min="1" />
     <button class="btn" id="startBtn">Start</button>
-    <button class="btn" id="stopBtn">Stop</button>
     <button class="btn" id="resetBtn">Reset</button>
   </div>
 
+  <div id="countdown">00:00</div>
+
+  <audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
+
   <script>
-    let startTime, updatedTime, difference, tInterval;
-    let running = false;
+    let countdownInterval;
+    let timeLeft = 0;
+    let flashing = false;
 
-    const timerDisplay = document.getElementById('timer');
+    const countdownDisplay = document.getElementById('countdown');
     const startBtn = document.getElementById('startBtn');
-    const stopBtn = document.getElementById('stopBtn');
     const resetBtn = document.getElementById('resetBtn');
+    const minutesInput = document.getElementById('minutesInput');
+    const alarmSound = document.getElementById('alarmSound');
+    const themeToggle = document.getElementById('themeToggle');
 
-    function updateDisplay() {
-      updatedTime = new Date().getTime();
-      difference = updatedTime - startTime;
+    function updateCountdown() {
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      countdownDisplay.textContent =
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-      let hours = Math.floor(difference / (1000 * 60 * 60));
-      let minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-      let seconds = Math.floor((difference % (1000 * 60)) / 1000);
+      if (timeLeft <= 0) {
+        clearInterval(countdownInterval);
+        countdownDisplay.textContent = "🔥 TIME’S UP 🔥";
+        playAlarm();
+        startFlashing();
+      } else {
+        timeLeft--;
+      }
+    }
 
-      hours = (hours < 10) ? "0" + hours : hours;
-      minutes = (minutes < 10) ? "0" + minutes : minutes;
-      seconds = (seconds < 10) ? "0" + seconds : seconds;
+    function playAlarm() {
+      alarmSound.play();
+    }
 
-      timerDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+    function startFlashing() {
+      flashing = true;
+      document.body.classList.add('flash');
+      setTimeout(() => {
+        flashing = false;
+        document.body.classList.remove('flash');
+      }, 5000);
     }
 
     startBtn.addEventListener('click', () => {
-      if (!running) {
-        startTime = new Date().getTime() - (difference || 0);
-        tInterval = setInterval(updateDisplay, 1000);
-        running = true;
-      }
-    });
-
-    stopBtn.addEventListener('click', () => {
-      clearInterval(tInterval);
-      running = false;
+      if (countdownInterval) clearInterval(countdownInterval);
+      const minutes = parseInt(minutesInput.value);
+      if (!minutes || minutes <= 0) return alert("Enter a valid number of minutes, bro!");
+      timeLeft = minutes * 60;
+      updateCountdown();
+      countdownInterval = setInterval(updateCountdown, 1000);
     });
 
     resetBtn.addEventListener('click', () => {
-      clearInterval(tInterval);
-      running = false;
-      difference = 0;
-      timerDisplay.textContent = "00:00:00";
+      clearInterval(countdownInterval);
+      timeLeft = 0;
+      countdownDisplay.textContent = "00:00";
+      minutesInput.value = "";
+      alarmSound.pause();
+      alarmSound.currentTime = 0;
+      document.body.classList.remove('flash');
+    });
+
+    // Theme toggle
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('light');
+      if (document.body.classList.contains('light')) {
+        themeToggle.textContent = '🌙 Dark Mode';
+      } else {
+        themeToggle.textContent = '☀️ Light Mode';
+      }
     });
   </script>
 </body>
