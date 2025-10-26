@@ -1,11 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Welcome to My Site</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Epic Timer ⏱️</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+    }
+    #timer {
+      font-size: 4rem;
+      letter-spacing: 2px;
+      margin-bottom: 2rem;
+    }
+    .btn {
+      background: #3b82f6;
+      border: none;
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      margin: 0.3rem;
+      transition: all 0.3s ease;
+    }
+    .btn:hover {
+      background: #2563eb;
+      transform: scale(1.05);
+    }
+  </style>
 </head>
 <body>
-  <h1>Yo, welcome to my website! 💪🔥</h1>
-  <p>Hosted for FREE on GitHub Pages, baby.</p>
+  <h1>🔥 Savage Timer 🔥</h1>
+  <div id="timer">00:00:00</div>
+  <div>
+    <button class="btn" id="startBtn">Start</button>
+    <button class="btn" id="stopBtn">Stop</button>
+    <button class="btn" id="resetBtn">Reset</button>
+  </div>
+
+  <script>
+    let startTime, updatedTime, difference, tInterval;
+    let running = false;
+
+    const timerDisplay = document.getElementById('timer');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    function updateDisplay() {
+      updatedTime = new Date().getTime();
+      difference = updatedTime - startTime;
+
+      let hours = Math.floor(difference / (1000 * 60 * 60));
+      let minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      let seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+      hours = (hours < 10) ? "0" + hours : hours;
+      minutes = (minutes < 10) ? "0" + minutes : minutes;
+      seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+      timerDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+    }
+
+    startBtn.addEventListener('click', () => {
+      if (!running) {
+        startTime = new Date().getTime() - (difference || 0);
+        tInterval = setInterval(updateDisplay, 1000);
+        running = true;
+      }
+    });
+
+    stopBtn.addEventListener('click', () => {
+      clearInterval(tInterval);
+      running = false;
+    });
+
+    resetBtn.addEventListener('click', () => {
+      clearInterval(tInterval);
+      running = false;
+      difference = 0;
+      timerDisplay.textContent = "00:00:00";
+    });
+  </script>
 </body>
 </html>
