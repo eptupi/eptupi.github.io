@@ -1,65 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Boss Respawn Timers ⏳</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boss Respawn Timers ⚔️</title>
   <style>
     body {
       font-family: 'Poppins', sans-serif;
       background: #0f172a;
-      color: #f1f5f9;
-      text-align: center;
+      color: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      margin: 0;
       padding: 10px;
       transition: background 0.3s, color 0.3s;
     }
     .light {
-      background: #f8fafc;
+      background: #f1f5f9;
       color: #0f172a;
     }
     h1 {
-      font-size: 1.3rem;
-      margin-bottom: 10px;
+      font-size: 1.4rem;
+      margin: 6px 0 10px 0;
     }
     .boss {
-      margin: 8px 0;
-      padding: 8px;
-      border-radius: 10px;
       background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 8px 12px;
+      margin: 5px 0;
+      width: 220px;
       display: flex;
-      flex-direction: column;
       align-items: center;
+      justify-content: space-between;
+      transition: 0.2s;
     }
-    .boss input {
-      width: 100px;
-      margin-bottom: 4px;
-      padding: 3px;
-      border: none;
-      border-radius: 6px;
-      text-align: center;
+    .boss:hover { background: rgba(255,255,255,0.1); }
+    .name {
+      font-weight: 600;
       font-size: 0.9rem;
+      flex: 1;
+      text-align: left;
+    }
+    .time {
+      font-size: 1.1rem;
+      font-weight: bold;
+      width: 70px;
+      text-align: right;
+    }
+    .controls {
+      display: flex;
+      gap: 4px;
     }
     .btn {
       background: #3b82f6;
-      border: none;
       color: white;
-      padding: 4px 8px;
+      border: none;
       border-radius: 6px;
+      padding: 2px 6px;
       cursor: pointer;
-      font-size: 0.8rem;
-      margin: 2px;
+      font-size: 0.75rem;
       transition: 0.2s;
     }
     .btn:hover { background: #2563eb; }
-    .countdown {
-      font-size: 1.4rem;
-      margin: 4px 0;
-      font-weight: 600;
-    }
     #themeToggle {
       position: fixed;
-      top: 6px;
-      right: 8px;
+      top: 8px;
+      right: 10px;
       background: #3b82f6;
       border: none;
       color: #fff;
@@ -68,52 +77,60 @@
       cursor: pointer;
       font-size: 0.8rem;
     }
+    #startAll {
+      background: #16a34a;
+      border: none;
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    #startAll:hover { background: #15803d; }
   </style>
 </head>
 <body>
   <button id="themeToggle">🌙</button>
   <h1>Boss Respawn Timers</h1>
+  <button id="startAll">Start All (2H)</button>
 
   <div id="bossContainer"></div>
 
   <script>
-    const bosses = ["Hydra", "Kraken", "Cerberus", "Leviathan"];
+    const bosses = ["Hydra", "Kraken", "Cerberus", "Leviathan", "Medusa"];
     const container = document.getElementById("bossContainer");
     const audio = new Audio("https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg");
+    const timers = {};
 
-    let timers = {};
-
+    // Build boss list
     bosses.forEach(boss => {
       const div = document.createElement("div");
       div.className = "boss";
       div.innerHTML = `
-        <strong>${boss}</strong>
-        <input type="number" placeholder="Mins" min="1" id="time-${boss}">
-        <div class="countdown" id="display-${boss}">00:00</div>
-        <div>
-          <button class="btn" onclick="startTimer('${boss}')">Start</button>
-          <button class="btn" onclick="resetTimer('${boss}')">Reset</button>
+        <div class="name">${boss}</div>
+        <div class="time" id="time-${boss}">02:00:00</div>
+        <div class="controls">
+          <button class="btn" onclick="startTimer('${boss}')">▶</button>
+          <button class="btn" onclick="resetTimer('${boss}')">⟳</button>
         </div>
       `;
       container.appendChild(div);
     });
 
+    // Start timer for one boss
     function startTimer(boss) {
-      const input = document.getElementById(`time-${boss}`);
-      const display = document.getElementById(`display-${boss}`);
-      let minutes = parseInt(input.value);
-      if (!minutes || minutes <= 0) {
-        alert("Enter valid minutes bro!");
-        return;
-      }
-      let seconds = minutes * 60;
-
       if (timers[boss]) clearInterval(timers[boss]);
+      let seconds = 2 * 60 * 60; // 2 hours
+      const display = document.getElementById(`time-${boss}`);
 
       timers[boss] = setInterval(() => {
-        let m = Math.floor(seconds / 60);
-        let s = seconds % 60;
-        display.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+        display.textContent =
+          `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+
         if (seconds <= 0) {
           clearInterval(timers[boss]);
           display.textContent = "🔥 READY 🔥";
@@ -124,22 +141,28 @@
       }, 1000);
     }
 
+    // Reset timer
     function resetTimer(boss) {
       clearInterval(timers[boss]);
-      document.getElementById(`display-${boss}`).textContent = "00:00";
-      document.getElementById(`time-${boss}`).value = "";
+      document.getElementById(`time-${boss}`).textContent = "02:00:00";
     }
 
+    // Start all
+    document.getElementById("startAll").addEventListener("click", () => {
+      bosses.forEach(boss => startTimer(boss));
+    });
+
+    // Flash + Sound
     function flashScreen() {
       document.body.style.background = "#f00";
-      setTimeout(() => document.body.classList.toggle('light'), 100);
       setTimeout(() => document.body.style.background = "", 300);
     }
 
-    document.getElementById("themeToggle").addEventListener("click", () => {
+    // Theme toggle
+    const themeBtn = document.getElementById("themeToggle");
+    themeBtn.addEventListener("click", () => {
       document.body.classList.toggle("light");
-      document.getElementById("themeToggle").textContent =
-        document.body.classList.contains("light") ? "🌙" : "☀️";
+      themeBtn.textContent = document.body.classList.contains("light") ? "☀️" : "🌙";
     });
   </script>
 </body>
