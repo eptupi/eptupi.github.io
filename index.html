@@ -20,7 +20,7 @@
     }
     h1 {
       font-size: 1.4rem;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
     #themeToggle {
       position: fixed;
@@ -34,17 +34,6 @@
       cursor: pointer;
       font-size: 0.8rem;
     }
-    #startAll {
-      background: #16a34a;
-      border: none;
-      color: #fff;
-      padding: 6px 10px;
-      border-radius: 6px;
-      margin-bottom: 12px;
-      cursor: pointer;
-      font-size: 0.8rem;
-    }
-    #startAll:hover { background: #15803d; }
     #bossContainer {
       display: flex;
       flex-wrap: wrap;
@@ -92,7 +81,6 @@
 <body>
   <button id="themeToggle">🌙</button>
   <h1>Boss Respawn Timers</h1>
-  <button id="startAll">Start All (2H)</button>
 
   <div id="bossContainer"></div>
 
@@ -102,6 +90,7 @@
     const audio = new Audio("https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg");
     const timers = {};
 
+    // Build boss list
     bosses.forEach(boss => {
       const div = document.createElement("div");
       div.className = "boss";
@@ -116,6 +105,7 @@
       container.appendChild(div);
     });
 
+    // Start timer for one boss
     function startTimer(boss) {
       if (timers[boss]) clearInterval(timers[boss]);
       let seconds = 2 * 60 * 60; // 2 hours
@@ -138,24 +128,23 @@
       }, 1000);
     }
 
+    // Reset timer
     function resetTimer(boss) {
       clearInterval(timers[boss]);
       document.getElementById(`time-${boss}`).textContent = "02:00:00";
     }
 
-    document.getElementById("startAll").addEventListener("click", () => {
-      bosses.forEach(boss => startTimer(boss));
-    });
-
+    // Flash + Sound
     function flashScreen() {
       document.body.style.background = "#f00";
       setTimeout(() => document.body.style.background = "", 300);
     }
 
-    document.getElementById("themeToggle").addEventListener("click", () => {
+    // Theme toggle
+    const themeBtn = document.getElementById("themeToggle");
+    themeBtn.addEventListener("click", () => {
       document.body.classList.toggle("light");
-      document.getElementById("themeToggle").textContent =
-        document.body.classList.contains("light") ? "☀️" : "🌙";
+      themeBtn.textContent = document.body.classList.contains("light") ? "☀️" : "🌙";
     });
   </script>
 </body>
