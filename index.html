@@ -9,13 +9,9 @@
       font-family: 'Poppins', sans-serif;
       background: #0f172a;
       color: #f8fafc;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
       margin: 0;
       padding: 10px;
+      text-align: center;
       transition: background 0.3s, color 0.3s;
     }
     .light {
@@ -24,47 +20,8 @@
     }
     h1 {
       font-size: 1.4rem;
-      margin: 6px 0 10px 0;
+      margin-bottom: 10px;
     }
-    .boss {
-      background: rgba(255,255,255,0.05);
-      border-radius: 10px;
-      padding: 8px 12px;
-      margin: 5px 0;
-      width: 220px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      transition: 0.2s;
-    }
-    .boss:hover { background: rgba(255,255,255,0.1); }
-    .name {
-      font-weight: 600;
-      font-size: 0.9rem;
-      flex: 1;
-      text-align: left;
-    }
-    .time {
-      font-size: 1.1rem;
-      font-weight: bold;
-      width: 70px;
-      text-align: right;
-    }
-    .controls {
-      display: flex;
-      gap: 4px;
-    }
-    .btn {
-      background: #3b82f6;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 2px 6px;
-      cursor: pointer;
-      font-size: 0.75rem;
-      transition: 0.2s;
-    }
-    .btn:hover { background: #2563eb; }
     #themeToggle {
       position: fixed;
       top: 8px;
@@ -83,11 +40,53 @@
       color: #fff;
       padding: 6px 10px;
       border-radius: 6px;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
       cursor: pointer;
       font-size: 0.8rem;
     }
     #startAll:hover { background: #15803d; }
+    #bossContainer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+    }
+    .boss {
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 8px;
+      width: 150px;
+      transition: 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .boss:hover { background: rgba(255,255,255,0.1); }
+    .name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+    .time {
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .controls {
+      display: flex;
+      gap: 4px;
+    }
+    .btn {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 2px 6px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: 0.2s;
+    }
+    .btn:hover { background: #2563eb; }
   </style>
 </head>
 <body>
@@ -103,7 +102,6 @@
     const audio = new Audio("https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg");
     const timers = {};
 
-    // Build boss list
     bosses.forEach(boss => {
       const div = document.createElement("div");
       div.className = "boss";
@@ -118,7 +116,6 @@
       container.appendChild(div);
     });
 
-    // Start timer for one boss
     function startTimer(boss) {
       if (timers[boss]) clearInterval(timers[boss]);
       let seconds = 2 * 60 * 60; // 2 hours
@@ -141,28 +138,24 @@
       }, 1000);
     }
 
-    // Reset timer
     function resetTimer(boss) {
       clearInterval(timers[boss]);
       document.getElementById(`time-${boss}`).textContent = "02:00:00";
     }
 
-    // Start all
     document.getElementById("startAll").addEventListener("click", () => {
       bosses.forEach(boss => startTimer(boss));
     });
 
-    // Flash + Sound
     function flashScreen() {
       document.body.style.background = "#f00";
       setTimeout(() => document.body.style.background = "", 300);
     }
 
-    // Theme toggle
-    const themeBtn = document.getElementById("themeToggle");
-    themeBtn.addEventListener("click", () => {
+    document.getElementById("themeToggle").addEventListener("click", () => {
       document.body.classList.toggle("light");
-      themeBtn.textContent = document.body.classList.contains("light") ? "☀️" : "🌙";
+      document.getElementById("themeToggle").textContent =
+        document.body.classList.contains("light") ? "☀️" : "🌙";
     });
   </script>
 </body>
