@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Countdown Timer ⏳</title>
+  <title>Boss Respawn Timer 💀</title>
   <style>
     :root {
       --bg: linear-gradient(135deg, #0f172a, #1e3a8a);
@@ -11,7 +11,6 @@
       --btn-bg: #3b82f6;
       --btn-hover: #2563eb;
     }
-
     body.light {
       --bg: linear-gradient(135deg, #f8fafc, #e2e8f0);
       --text: #0f172a;
@@ -33,26 +32,12 @@
       transition: background 0.5s, color 0.5s;
     }
 
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 2rem;
-    }
-
+    h1 { font-size: 2.5rem; margin-bottom: 2rem; }
     #countdown {
       font-size: 3.5rem;
       margin-bottom: 2rem;
       letter-spacing: 2px;
       transition: 0.3s;
-    }
-
-    input {
-      padding: 0.5rem;
-      border-radius: 8px;
-      border: none;
-      font-size: 1rem;
-      text-align: center;
-      width: 160px;
-      margin-right: 0.5rem;
     }
 
     .btn {
@@ -66,11 +51,7 @@
       margin: 0.3rem;
       transition: 0.3s ease;
     }
-
-    .btn:hover {
-      background: var(--btn-hover);
-      transform: scale(1.05);
-    }
+    .btn:hover { background: var(--btn-hover); transform: scale(1.05); }
 
     #themeToggle {
       position: absolute;
@@ -87,7 +68,6 @@
     .flash {
       animation: flash 0.3s alternate infinite;
     }
-
     @keyframes flash {
       from { background-color: #ff0000; }
       to { background-color: #000; }
@@ -96,39 +76,37 @@
 </head>
 <body>
   <button id="themeToggle">☀️ Light Mode</button>
-  <h1>🔥 Countdown Timer 🔥</h1>
+  <h1>💀 Boss Respawn Timer 💀</h1>
+  <div id="countdown">02:00:00</div>
 
   <div>
-    <input type="number" id="minutesInput" placeholder="Minutes" min="1" />
     <button class="btn" id="startBtn">Start</button>
     <button class="btn" id="resetBtn">Reset</button>
   </div>
-
-  <div id="countdown">00:00</div>
 
   <audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
 
   <script>
     let countdownInterval;
-    let timeLeft = 0;
-    let flashing = false;
-
+    let timeLeft = 2 * 60 * 60; // 2 hours in seconds
     const countdownDisplay = document.getElementById('countdown');
     const startBtn = document.getElementById('startBtn');
     const resetBtn = document.getElementById('resetBtn');
-    const minutesInput = document.getElementById('minutesInput');
     const alarmSound = document.getElementById('alarmSound');
     const themeToggle = document.getElementById('themeToggle');
 
     function updateCountdown() {
-      const minutes = Math.floor(timeLeft / 60);
+      const hours = Math.floor(timeLeft / 3600);
+      const minutes = Math.floor((timeLeft % 3600) / 60);
       const seconds = timeLeft % 60;
       countdownDisplay.textContent =
-        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        `${hours.toString().padStart(2, '0')}:${minutes
+          .toString()
+          .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
       if (timeLeft <= 0) {
         clearInterval(countdownInterval);
-        countdownDisplay.textContent = "🔥 TIME’S UP 🔥";
+        countdownDisplay.textContent = "🔥 BOSS RESPAWNED 🔥";
         playAlarm();
         startFlashing();
       } else {
@@ -136,33 +114,23 @@
       }
     }
 
-    function playAlarm() {
-      alarmSound.play();
-    }
+    function playAlarm() { alarmSound.play(); }
 
     function startFlashing() {
-      flashing = true;
       document.body.classList.add('flash');
-      setTimeout(() => {
-        flashing = false;
-        document.body.classList.remove('flash');
-      }, 5000);
+      setTimeout(() => document.body.classList.remove('flash'), 5000);
     }
 
     startBtn.addEventListener('click', () => {
-      if (countdownInterval) clearInterval(countdownInterval);
-      const minutes = parseInt(minutesInput.value);
-      if (!minutes || minutes <= 0) return alert("Enter a valid number of minutes, bro!");
-      timeLeft = minutes * 60;
+      clearInterval(countdownInterval);
       updateCountdown();
       countdownInterval = setInterval(updateCountdown, 1000);
     });
 
     resetBtn.addEventListener('click', () => {
       clearInterval(countdownInterval);
-      timeLeft = 0;
-      countdownDisplay.textContent = "00:00";
-      minutesInput.value = "";
+      timeLeft = 2 * 60 * 60;
+      countdownDisplay.textContent = "02:00:00";
       alarmSound.pause();
       alarmSound.currentTime = 0;
       document.body.classList.remove('flash');
@@ -171,11 +139,9 @@
     // Theme toggle
     themeToggle.addEventListener('click', () => {
       document.body.classList.toggle('light');
-      if (document.body.classList.contains('light')) {
-        themeToggle.textContent = '🌙 Dark Mode';
-      } else {
-        themeToggle.textContent = '☀️ Light Mode';
-      }
+      themeToggle.textContent = document.body.classList.contains('light')
+        ? '🌙 Dark Mode'
+        : '☀️ Light Mode';
     });
   </script>
 </body>
