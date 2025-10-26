@@ -3,19 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Boss Respawn Timer 💀</title>
+  <title>Multi-Boss Respawn Tracker 💀</title>
   <style>
     :root {
       --bg: linear-gradient(135deg, #0f172a, #1e3a8a);
       --text: #f1f5f9;
       --btn-bg: #3b82f6;
       --btn-hover: #2563eb;
+      --card-bg: rgba(255,255,255,0.1);
     }
     body.light {
       --bg: linear-gradient(135deg, #f8fafc, #e2e8f0);
       --text: #0f172a;
       --btn-bg: #2563eb;
       --btn-hover: #1e40af;
+      --card-bg: rgba(0,0,0,0.05);
     }
 
     body {
@@ -25,36 +27,17 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100vh;
+      justify-content: flex-start;
+      min-height: 100vh;
       margin: 0;
       text-align: center;
       transition: background 0.5s, color 0.5s;
+      padding: 2rem;
     }
 
-    h1 { font-size: 2.5rem; margin-bottom: 2rem; }
-    #countdown {
-      font-size: 3.5rem;
-      margin-bottom: 2rem;
-      letter-spacing: 2px;
-      transition: 0.3s;
-    }
-
-    .btn {
-      background: var(--btn-bg);
-      border: none;
-      color: white;
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      border-radius: 10px;
-      cursor: pointer;
-      margin: 0.3rem;
-      transition: 0.3s ease;
-    }
-    .btn:hover { background: var(--btn-hover); transform: scale(1.05); }
-
+    h1 { font-size: 2.2rem; margin-bottom: 1.5rem; }
     #themeToggle {
-      position: absolute;
+      position: fixed;
       top: 1rem;
       right: 1rem;
       background: var(--btn-bg);
@@ -64,6 +47,44 @@
       border-radius: 8px;
       cursor: pointer;
     }
+
+    .boss-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(8px);
+      border-radius: 15px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      width: 300px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      transition: 0.3s;
+    }
+
+    .boss-card:hover { transform: scale(1.03); }
+
+    .boss-name {
+      font-size: 1.3rem;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .timer {
+      font-size: 2rem;
+      margin: 1rem 0;
+    }
+
+    .btn {
+      background: var(--btn-bg);
+      border: none;
+      color: white;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      margin: 0.3rem;
+      transition: 0.3s ease;
+    }
+
+    .btn:hover { background: var(--btn-hover); transform: scale(1.05); }
 
     .flash {
       animation: flash 0.3s alternate infinite;
@@ -76,73 +97,34 @@
 </head>
 <body>
   <button id="themeToggle">☀️ Light Mode</button>
-  <h1>💀 Boss Respawn Timer 💀</h1>
-  <div id="countdown">02:00:00</div>
-
-  <div>
-    <button class="btn" id="startBtn">Start</button>
-    <button class="btn" id="resetBtn">Reset</button>
-  </div>
+  <h1>💀 Multi-Boss Respawn Tracker 💀</h1>
+  <div id="bossContainer"></div>
 
   <audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
 
   <script>
-    let countdownInterval;
-    let timeLeft = 2 * 60 * 60; // 2 hours in seconds
-    const countdownDisplay = document.getElementById('countdown');
-    const startBtn = document.getElementById('startBtn');
-    const resetBtn = document.getElementById('resetBtn');
-    const alarmSound = document.getElementById('alarmSound');
-    const themeToggle = document.getElementById('themeToggle');
+    const bosses = [
+      { name: "🔥 Dragon Lord", timeLeft: 2 * 60 * 60 },
+      { name: "💀 Shadow Reaper", timeLeft: 2 * 60 * 60 },
+      { name: "🦂 Sand Wyrm", timeLeft: 2 * 60 * 60 },
+      { name: "🐉 Frost Hydra", timeLeft: 2 * 60 * 60 }
+    ];
 
-    function updateCountdown() {
-      const hours = Math.floor(timeLeft / 3600);
-      const minutes = Math.floor((timeLeft % 3600) / 60);
-      const seconds = timeLeft % 60;
-      countdownDisplay.textContent =
-        `${hours.toString().padStart(2, '0')}:${minutes
-          .toString()
-          .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    const bossContainer = document.getElementById("bossContainer");
+    const alarmSound = document.getElementById("alarmSound");
+    const themeToggle = document.getElementById("themeToggle");
 
-      if (timeLeft <= 0) {
-        clearInterval(countdownInterval);
-        countdownDisplay.textContent = "🔥 BOSS RESPAWNED 🔥";
-        playAlarm();
-        startFlashing();
-      } else {
-        timeLeft--;
-      }
-    }
+    function createBossCard(boss) {
+      const card = document.createElement("div");
+      card.className = "boss-card";
 
-    function playAlarm() { alarmSound.play(); }
+      const name = document.createElement("div");
+      name.className = "boss-name";
+      name.textContent = boss.name;
 
-    function startFlashing() {
-      document.body.classList.add('flash');
-      setTimeout(() => document.body.classList.remove('flash'), 5000);
-    }
+      const timer = document.createElement("div");
+      timer.className = "timer";
+      timer.textContent = "02:00:00";
 
-    startBtn.addEventListener('click', () => {
-      clearInterval(countdownInterval);
-      updateCountdown();
-      countdownInterval = setInterval(updateCountdown, 1000);
-    });
-
-    resetBtn.addEventListener('click', () => {
-      clearInterval(countdownInterval);
-      timeLeft = 2 * 60 * 60;
-      countdownDisplay.textContent = "02:00:00";
-      alarmSound.pause();
-      alarmSound.currentTime = 0;
-      document.body.classList.remove('flash');
-    });
-
-    // Theme toggle
-    themeToggle.addEventListener('click', () => {
-      document.body.classList.toggle('light');
-      themeToggle.textContent = document.body.classList.contains('light')
-        ? '🌙 Dark Mode'
-        : '☀️ Light Mode';
-    });
-  </script>
-</body>
-</html>
+      const startBtn = document.createElement("button");
+      star
