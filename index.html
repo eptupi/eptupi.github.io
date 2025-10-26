@@ -1,139 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Boss Respawn Timer 💀</title>
-<style>
-  body {
-    font-family: 'Poppins', sans-serif;
-    background: #0f172a;
-    color: #f1f5f9;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    margin: 0;
-    transition: background 0.3s, color 0.3s;
-  }
-  .light {
-    background: #f8fafc;
-    color: #0f172a;
-  }
-  h1 {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-  }
-  table {
-    border-collapse: collapse;
-    width: 95%;
-    max-width: 380px;
-    font-size: 0.9rem;
-  }
-  th, td {
-    border: 1px solid #334155;
-    padding: 0.4rem;
-    text-align: center;
-  }
-  th {
-    background: #1e293b;
-  }
-  .light th {
-    background: #e2e8f0;
-  }
-  button {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.8rem;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin: 0.1rem;
-    transition: 0.2s;
-  }
-  .start { background: #3b82f6; color: white; }
-  .reset { background: #ef4444; color: white; }
-  button:hover { opacity: 0.8; transform: scale(1.05); }
-  #themeToggle {
-    margin-top: 0.5rem;
-    background: #64748b;
-  }
-  .flash {
-    animation: flash 0.5s alternate infinite;
-  }
-  @keyframes flash {
-    from { background-color: #ef4444; }
-    to { background-color: #1e3a8a; }
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Boss Respawn Timers ⏳</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      text-align: center;
+      padding: 10px;
+      transition: background 0.3s, color 0.3s;
+    }
+    .light {
+      background: #f8fafc;
+      color: #0f172a;
+    }
+    h1 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+    }
+    .boss {
+      margin: 8px 0;
+      padding: 8px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .boss input {
+      width: 100px;
+      margin-bottom: 4px;
+      padding: 3px;
+      border: none;
+      border-radius: 6px;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    .btn {
+      background: #3b82f6;
+      border: none;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      margin: 2px;
+      transition: 0.2s;
+    }
+    .btn:hover { background: #2563eb; }
+    .countdown {
+      font-size: 1.4rem;
+      margin: 4px 0;
+      font-weight: 600;
+    }
+    #themeToggle {
+      position: fixed;
+      top: 6px;
+      right: 8px;
+      background: #3b82f6;
+      border: none;
+      color: #fff;
+      border-radius: 6px;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+  </style>
 </head>
 <body>
-  <h1>💀 Boss Respawn Timers 💀</h1>
-  <table id="bossTable">
-    <tr><th>Boss</th><th>Timer</th><th>Actions</th></tr>
-  </table>
-  <button id="themeToggle">🕶️ Toggle Theme</button>
+  <button id="themeToggle">🌙</button>
+  <h1>Boss Respawn Timers</h1>
 
-  <audio id="alarm" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+  <div id="bossContainer"></div>
 
-<script>
-  const bosses = [
-    { name: "🔥 Dragon King", time: 2 * 60 * 60 },
-    { name: "💀 Shadow Lord", time: 2 * 60 * 60 },
-    { name: "🐍 Serpent Queen", time: 2 * 60 * 60 }
-  ];
+  <script>
+    const bosses = ["Hydra", "Kraken", "Cerberus", "Leviathan"];
+    const container = document.getElementById("bossContainer");
+    const audio = new Audio("https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg");
 
-  const alarm = document.getElementById('alarm');
-  const table = document.getElementById('bossTable');
-  let countdowns = {};
+    let timers = {};
 
-  bosses.forEach((boss, index) => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${boss.name}</td>
-      <td id="timer-${index}">02:00:00</td>
-      <td>
-        <button class="start" onclick="startTimer(${index})">Start</button>
-        <button class="reset" onclick="resetTimer(${index})">Reset</button>
-      </td>
-    `;
-    table.appendChild(row);
-  });
+    bosses.forEach(boss => {
+      const div = document.createElement("div");
+      div.className = "boss";
+      div.innerHTML = `
+        <strong>${boss}</strong>
+        <input type="number" placeholder="Mins" min="1" id="time-${boss}">
+        <div class="countdown" id="display-${boss}">00:00</div>
+        <div>
+          <button class="btn" onclick="startTimer('${boss}')">Start</button>
+          <button class="btn" onclick="resetTimer('${boss}')">Reset</button>
+        </div>
+      `;
+      container.appendChild(div);
+    });
 
-  function formatTime(t) {
-    const h = Math.floor(t / 3600);
-    const m = Math.floor((t % 3600) / 60);
-    const s = t % 60;
-    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-  }
-
-  function startTimer(i) {
-    resetTimer(i);
-    let time = bosses[i].time;
-    const display = document.getElementById(`timer-${i}`);
-    display.classList.remove("flash");
-    countdowns[i] = setInterval(() => {
-      display.textContent = formatTime(time);
-      if (time <= 0) {
-        clearInterval(countdowns[i]);
-        display.textContent = "SPAWNED!";
-        display.classList.add("flash");
-        alarm.play();
+    function startTimer(boss) {
+      const input = document.getElementById(`time-${boss}`);
+      const display = document.getElementById(`display-${boss}`);
+      let minutes = parseInt(input.value);
+      if (!minutes || minutes <= 0) {
+        alert("Enter valid minutes bro!");
+        return;
       }
-      time--;
-    }, 1000);
-  }
+      let seconds = minutes * 60;
 
-  function resetTimer(i) {
-    clearInterval(countdowns[i]);
-    const display = document.getElementById(`timer-${i}`);
-    display.textContent = "02:00:00";
-    display.classList.remove("flash");
-  }
+      if (timers[boss]) clearInterval(timers[boss]);
 
-  document.getElementById('themeToggle').addEventListener('click', () => {
-    document.body.classList.toggle('light');
-  });
-</script>
+      timers[boss] = setInterval(() => {
+        let m = Math.floor(seconds / 60);
+        let s = seconds % 60;
+        display.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        if (seconds <= 0) {
+          clearInterval(timers[boss]);
+          display.textContent = "🔥 READY 🔥";
+          flashScreen();
+          audio.play();
+        }
+        seconds--;
+      }, 1000);
+    }
+
+    function resetTimer(boss) {
+      clearInterval(timers[boss]);
+      document.getElementById(`display-${boss}`).textContent = "00:00";
+      document.getElementById(`time-${boss}`).value = "";
+    }
+
+    function flashScreen() {
+      document.body.style.background = "#f00";
+      setTimeout(() => document.body.classList.toggle('light'), 100);
+      setTimeout(() => document.body.style.background = "", 300);
+    }
+
+    document.getElementById("themeToggle").addEventListener("click", () => {
+      document.body.classList.toggle("light");
+      document.getElementById("themeToggle").textContent =
+        document.body.classList.contains("light") ? "🌙" : "☀️";
+    });
+  </script>
 </body>
 </html>
